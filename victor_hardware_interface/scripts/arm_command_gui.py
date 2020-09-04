@@ -72,6 +72,8 @@ class Arm:
         self.name = arm_name
         self.block_command = False
 
+        self.active_control_mode_int = 0
+
         self.v_layout = QGridLayout()
         self.col_num = 11
         self.row_count = [0] * self.col_num
@@ -380,6 +382,7 @@ class Arm:
         self.joint_textboxes[joint_name].setText(str(position))
         self.joint_sliders[joint_name].setValue(position)
         setattr(self.arm_command.joint_position, joint_name, math.radians(position))
+        self.arm_command.control_mode.mode = self.active_control_mode_int
         if not self.block_command:
             self.arm_command_publisher.publish(self.arm_command)
 
