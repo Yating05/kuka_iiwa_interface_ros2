@@ -2,6 +2,7 @@
 
 // ROS
 #include <ros/callback_queue.h>
+#include <controller_manager/controller_manager.h>
 
 // ROS message headers
 #include "victor_hardware_interface/ControlModeParameters.h"
@@ -209,6 +210,8 @@ namespace victor_hardware_interface {
 
     // The one function called externally
     void MinimalArmWrapperInterface::spin() {
+        controller_manager::ControllerManager cm(iiwa_ptr_.get());
+
         // Start ROS thread - this must happen *after* the LCM objects have been initialized as they use iiwa_ptr_ and
         // robotiq_ptr_, so we do so here instead of in the constructor
         ROS_INFO_NAMED(ros::this_node::getName(), "Starting ROS spin loop.");
@@ -217,12 +220,21 @@ namespace victor_hardware_interface {
         ROS_INFO_NAMED(ros::this_node::getName(), "Starting LCM spin loop.");
         bool lcm_ok = true;
         // Continue to loop so long as both ROS and LCM have no un-recoverable errors or SIGINT style interruptions
+
+        ros::Time last;
         while (ros::ok() && lcm_ok) {
             const int ret = recv_lcm_ptr_->handleTimeout(LCM_HANDLE_TIMEOUT);
             if (ret < 0) {
                 lcm_ok = false;
                 ROS_ERROR_STREAM_NAMED(ros::this_node::getName(), "LCM error: " << ret);
             }
+
+            auto const now = ros::Time::now();
+            auto const period = now - last;
+            last = now;
+            iiwa_ptr_->read(now, period);
+            cm.update(now, period);
+            iiwa_ptr_->write(now, period);
         }
 
         ros::shutdown();

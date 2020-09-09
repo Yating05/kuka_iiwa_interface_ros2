@@ -1,6 +1,7 @@
 #include "victor_hardware_interface/iiwa_hardware_interface.hpp"
 
 #include <arc_utilities/arc_helpers.hpp>
+#include <arc_utilities/enumerate.h>
 
 namespace victor_hardware_interface {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -155,7 +156,7 @@ namespace victor_hardware_interface {
         ros_ccml.max_cartesian_velocity = cvqLcmToRos(lcm_ccml.max_cartesian_velocity);
         ros_ccml.max_path_deviation = cvqLcmToRos(lcm_ccml.max_path_deviation);
         ros_ccml.max_control_force = cvqLcmToRos(lcm_ccml.max_control_force);
-        ros_ccml.stop_on_max_control_force = lcm_ccml.stop_on_max_control_force;
+        ros_ccml.stop_on_max_control_force = static_cast<unsigned char>(lcm_ccml.stop_on_max_control_force);
         return ros_ccml;
     }
 
@@ -164,7 +165,7 @@ namespace victor_hardware_interface {
         lcm_ccml.max_cartesian_velocity = cvqRosToLcm(ros_ccml.max_cartesian_velocity);
         lcm_ccml.max_path_deviation = cvqRosToLcm(ros_ccml.max_path_deviation);
         lcm_ccml.max_control_force = cvqRosToLcm(ros_ccml.max_control_force);
-        lcm_ccml.stop_on_max_control_force = ros_ccml.stop_on_max_control_force;
+        lcm_ccml.stop_on_max_control_force = static_cast<int8_t>(ros_ccml.stop_on_max_control_force);
         return lcm_ccml;
     }
 
@@ -267,11 +268,26 @@ namespace victor_hardware_interface {
                                  this);
         recv_lcm_ptr_->subscribe(control_mode_status_channel_name_,
                                  &IIWAHardwareInterface::InternalControlModeStatusLCMCallback, this);
+
+        // Setup ROS Hardware Interface
+        for (auto const &[i, name] : enumerate(joint_names)) {
+            hardware_interface::JointStateHandle state_handle(name, &pos[i], &vel[i], &eff[i]);
+            joint_state_interface.registerHandle(state_handle);
+        }
+        registerInterface(&joint_state_interface);
+
+        // connect and register the joint position interface
+        for (auto const &[i, name] : enumerate(joint_names)) {
+            hardware_interface::JointHandle pos_handle(joint_state_interface.getHandle(name), &cmd[i]);
+            joint_pos_interface.registerHandle(pos_handle);
+        }
+        registerInterface(&joint_pos_interface);
     }
 
     bool IIWAHardwareInterface::SendMotionCommandMessage(const MotionCommand &command) {
         const motion_command lcm_command = motionCommandRosToLcm(command);
         const int ret = send_lcm_ptr_->publish(motion_command_channel_name_, &lcm_command);
+        latest_motion_command_msg_ = command;
         if (ret == 0) {
             return true;
         } else {
@@ -296,6 +312,7 @@ namespace victor_hardware_interface {
         UNUSED(buffer);
         UNUSED(channel);
         const MotionStatus ros_status = motionStatusLcmToRos(*status_msg);
+        latest_motion_status_msg_ = ros_status;
         motion_status_callback_fn_(ros_status);
     }
 
@@ -307,5 +324,61 @@ namespace victor_hardware_interface {
         UNUSED(channel);
         const ControlModeParameters ros_status = controlModeParamsLcmToRos(*status_msg);
         control_mode_status_callback_fn_(ros_status);
+    }
+
+
+    void IIWAHardwareInterface::read(const ros::Time &time, const ros::Duration &period) {
+        UNUSED(time);
+        UNUSED(period);
+
+        // read the latest status message and set the values in pos, vel, eff
+        auto const new_pos = latest_motion_status_msg_.measured_joint_position;
+        auto const new_vel = latest_motion_status_msg_.measured_joint_velocity;
+        auto const new_eff = latest_motion_status_msg_.measured_joint_torque;
+
+        pos[0] = new_pos.joint_1;
+        pos[0] = new_pos.joint_2;
+        pos[0] = new_pos.joint_3;
+        pos[0] = new_pos.joint_4;
+        pos[0] = new_pos.joint_5;
+        pos[0] = new_pos.joint_6;
+        pos[0] = new_pos.joint_7;
+
+        vel[0] = new_vel.joint_1;
+        vel[0] = new_vel.joint_2;
+        vel[0] = new_vel.joint_3;
+        vel[0] = new_vel.joint_4;
+        vel[0] = new_vel.joint_5;
+        vel[0] = new_vel.joint_6;
+        vel[0] = new_vel.joint_7;
+
+        eff[0] = new_eff.joint_1;
+        eff[0] = new_eff.joint_2;
+        eff[0] = new_eff.joint_3;
+        eff[0] = new_eff.joint_4;
+        eff[0] = new_eff.joint_5;
+        eff[0] = new_eff.joint_6;
+        eff[0] = new_eff.joint_7;
+    }
+
+    void IIWAHardwareInterface::write(const ros::Time &time, const ros::Duration &period) {
+        UNUSED(time);
+        UNUSED(period);
+
+        // TODO: joint limits? how does that work?
+        // I would assume if we send LCM something that doesn't respect joint limits, then it just won't do it right?
+
+        // TODO: deal with race condition, I'll need to lock send_lcm_ptr_ or something
+        MotionCommand motion_command;
+        motion_command.joint_position.joint_1 = eff[0];
+        motion_command.joint_position.joint_2 = eff[1];
+        motion_command.joint_position.joint_3 = eff[2];
+        motion_command.joint_position.joint_4 = eff[3];
+        motion_command.joint_position.joint_5 = eff[4];
+        motion_command.joint_position.joint_6 = eff[5];
+        motion_command.joint_position.joint_7 = eff[6];
+        auto const lcm_command = motionCommandRosToLcm(motion_command);
+        const auto ret = send_lcm_ptr_->publish(motion_command_channel_name_, &lcm_command);
+        ROS_ERROR_STREAM_COND(!ret, "Failed to send LCM command");
     }
 }

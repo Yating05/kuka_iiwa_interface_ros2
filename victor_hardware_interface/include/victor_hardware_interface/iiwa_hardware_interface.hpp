@@ -1,5 +1,12 @@
 #include <string>
+#include <array>
 #include <lcm/lcm-cpp.hpp>
+
+// ROS Hardware Interface headers
+#include <hardware_interface/joint_command_interface.h>
+#include <hardware_interface/joint_state_interface.h>
+#include <hardware_interface/robot_hw.h>
+
 // ROS message headers
 #include "victor_hardware_interface/ControlModeParameters.h"
 #include "victor_hardware_interface/MotionCommand.h"
@@ -11,6 +18,17 @@
 
 #ifndef IIWA_HARDWARE_INTERFACE_HPP
 #define IIWA_HARDWARE_INTERFACE_HPP
+
+constexpr auto const joint_names = std::array<char const *, 7>{
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+};
+constexpr auto const n_joints = joint_names.size();
 
 namespace victor_hardware_interface {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +83,7 @@ namespace victor_hardware_interface {
     // The class that does the actual communication
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    class IIWAHardwareInterface {
+    class IIWAHardwareInterface : public hardware_interface::RobotHW {
     protected:
 
         std::shared_ptr<lcm::LCM> send_lcm_ptr_;
@@ -76,6 +94,10 @@ namespace victor_hardware_interface {
         std::string control_mode_command_channel_name_;
         std::string control_mode_status_channel_name_;
         std::function<void(const ControlModeParameters &)> control_mode_status_callback_fn_;
+        MotionStatus latest_motion_status_msg_;
+        MotionStatus latest_gripper_status_msg_;
+        MotionCommand latest_motion_command_msg_;
+        MotionCommand latest_gripper_command_msg_;
 
         void InternalMotionStatusLCMCallback(
                 const lcm::ReceiveBuffer *buffer,
@@ -102,6 +124,21 @@ namespace victor_hardware_interface {
         bool SendMotionCommandMessage(const MotionCommand &command);
 
         bool SendControlModeCommandMessage(const ControlModeParameters &command);
+
+        // For explanation, see https://github.com/ros-controls/ros_control/wiki/hardware_interface
+        // these are somewhat duplicative of the other functions in this class
+        void read(ros::Time const &time, ros::Duration const &period) override;
+
+        void write(ros::Time const &time, ros::Duration const &period) override;
+
+
+    private:
+        hardware_interface::JointStateInterface joint_state_interface;
+        hardware_interface::PositionJointInterface joint_pos_interface;
+        double cmd[n_joints];
+        double pos[n_joints];
+        double vel[n_joints];
+        double eff[n_joints];
     };
 }
 
