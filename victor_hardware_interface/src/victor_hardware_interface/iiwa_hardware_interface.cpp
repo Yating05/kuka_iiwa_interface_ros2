@@ -370,13 +370,13 @@ namespace victor_hardware_interface {
 
         // TODO: deal with race condition, I'll need to lock send_lcm_ptr_ or something
         MotionCommand motion_command;
-        motion_command.joint_position.joint_1 = eff[0];
-        motion_command.joint_position.joint_2 = eff[1];
-        motion_command.joint_position.joint_3 = eff[2];
-        motion_command.joint_position.joint_4 = eff[3];
-        motion_command.joint_position.joint_5 = eff[4];
-        motion_command.joint_position.joint_6 = eff[5];
-        motion_command.joint_position.joint_7 = eff[6];
+        motion_command.joint_position.joint_1 = cmd[0];
+        motion_command.joint_position.joint_2 = cmd[1];
+        motion_command.joint_position.joint_3 = cmd[2];
+        motion_command.joint_position.joint_4 = cmd[3];
+        motion_command.joint_position.joint_5 = cmd[4];
+        motion_command.joint_position.joint_6 = cmd[5];
+        motion_command.joint_position.joint_7 = cmd[6];
         auto const lcm_command = motionCommandRosToLcm(motion_command);
         const auto ret = send_lcm_ptr_->publish(motion_command_channel_name_, &lcm_command);
         ROS_ERROR_STREAM_COND(!ret, "Failed to send LCM command");
