@@ -278,7 +278,7 @@ namespace victor_hardware_interface {
 
         // connect and register the joint position interface
         for (auto const &[i, name] : enumerate(joint_names)) {
-            hardware_interface::JointHandle pos_handle(joint_state_interface.getHandle(name), &cmd[i]);
+            hardware_interface::JointHandle pos_handle(joint_state_interface.getHandle(name), &position_cmd[i]);
             joint_pos_interface.registerHandle(pos_handle);
         }
         registerInterface(&joint_pos_interface);
@@ -370,13 +370,13 @@ namespace victor_hardware_interface {
 
         // TODO: deal with race condition, I'll need to lock send_lcm_ptr_ or something
         MotionCommand motion_command;
-        motion_command.joint_position.joint_1 = cmd[0];
-        motion_command.joint_position.joint_2 = cmd[1];
-        motion_command.joint_position.joint_3 = cmd[2];
-        motion_command.joint_position.joint_4 = cmd[3];
-        motion_command.joint_position.joint_5 = cmd[4];
-        motion_command.joint_position.joint_6 = cmd[5];
-        motion_command.joint_position.joint_7 = cmd[6];
+        motion_command.joint_position.joint_1 = position_cmd[0];
+        motion_command.joint_position.joint_2 = position_cmd[1];
+        motion_command.joint_position.joint_3 = position_cmd[2];
+        motion_command.joint_position.joint_4 = position_cmd[3];
+        motion_command.joint_position.joint_5 = position_cmd[4];
+        motion_command.joint_position.joint_6 = position_cmd[5];
+        motion_command.joint_position.joint_7 = position_cmd[6];
         auto const lcm_command = motionCommandRosToLcm(motion_command);
         const auto ret = send_lcm_ptr_->publish(motion_command_channel_name_, &lcm_command);
         ROS_ERROR_STREAM_COND(!ret, "Failed to send LCM command");

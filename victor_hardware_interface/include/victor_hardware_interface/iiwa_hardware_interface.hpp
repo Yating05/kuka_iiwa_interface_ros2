@@ -135,7 +135,7 @@ namespace victor_hardware_interface {
     private:
         hardware_interface::JointStateInterface joint_state_interface;
         hardware_interface::PositionJointInterface joint_pos_interface;
-        double cmd[n_joints];
+        double position_cmd[n_joints];
         double pos[n_joints];
         double vel[n_joints];
         double eff[n_joints];
