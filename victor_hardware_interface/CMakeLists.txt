@@ -13,6 +13,8 @@ set(CATKIN_PACKAGES
     std_msgs
     lcm)
 
+set(CMAKE_CXX_STANDARD 20)
+
 find_package(catkin REQUIRED COMPONENTS ${CATKIN_PACKAGES} message_generation)
 find_package(cmake_modules REQUIRED)
 find_package(Eigen3 REQUIRED)
