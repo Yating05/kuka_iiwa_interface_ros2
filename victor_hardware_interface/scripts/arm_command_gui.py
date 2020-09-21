@@ -186,22 +186,22 @@ class Arm:
         self.groupbox.setFlat(False)
         parent_layout.addWidget(self.groupbox, box_row, 0)
 
-        print 'Getting', self.name, 'current joint values ...',
+        print('Getting', self.name, 'current joint values ...')
         sys.stdout.flush()
         while (not self.arm_status_updated) or (not self.gripper_status_updated):
             time.sleep(0.01)
-        print 'Done'
+        print('Done')
 
         self.reset_arm_slider_to_current_value()
         self.reset_gripper_position_slider_to_current_value()
 
-        print 'Getting', self.name, 'current control mode ...',
+        print('Getting', self.name, 'current control mode ...')
         sys.stdout.flush()
         get_current_control_mode = rospy.ServiceProxy('/' + self.name + '/get_control_mode_service', GetControlMode)
         control_mode = get_current_control_mode()
         self.active_control_mode_int = control_mode.active_control_mode.control_mode.mode
         self.control_mode_combobox.setCurrentIndex(self.active_control_mode_int)
-        print 'Done'
+        print('Done')
 
     def arm_status_callback(self, data):
         self.arm_status = data
@@ -386,19 +386,19 @@ class Arm:
 
     def set_stiffness(self, stiffness):
         self.stiffness = self.stiffness_map[stiffness]
-        print self.stiffness
+        print(self.stiffness)
         self.change_control_mode(self.active_control_mode_int)
 
     def change_control_mode(self, control_mode):
         if control_mode == ControlMode.JOINT_POSITION:
             self.enable_arm_sliders()
-            print 'Switching to JOINT_POSITION mode.'
+            print('Switching to JOINT_POSITION mode.')
         elif control_mode == ControlMode.CARTESIAN_POSE:
             self.disable_arm_sliders()
-            print 'Switching to CARTESIAN_POSE mode.'
+            print('Switching to CARTESIAN_POSE mode.')
         elif control_mode == ControlMode.JOINT_IMPEDANCE:
             self.enable_arm_sliders()
-            print 'Switching to JOINT_IMPEDANCE mode'
+            print('Switching to JOINT_IMPEDANCE mode')
         elif control_mode == ControlMode.CARTESIAN_IMPEDANCE:
             self.disable_arm_sliders()
             print('Switching to CARTESIAN_IMPEDANCE mode')
@@ -406,10 +406,10 @@ class Arm:
         result = victor_utils.set_control_mode(control_mode, self.name, self.stiffness)
 
         if result.success:
-            print 'Control mode switch success.'
+            print('Control mode switch success.')
         else:
-            print 'Control mode switch failure.'
-            print result.message
+            print('Control mode switch failure.')
+            print(result.message)
         self.active_control_mode_int = control_mode
         self.arm_command.control_mode.mode = control_mode
 
