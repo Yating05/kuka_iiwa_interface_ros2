@@ -139,9 +139,10 @@ def get_cartesian_impedance_params():
     new_control_mode = ControlModeParameters()
     new_control_mode.control_mode.mode = ControlMode.CARTESIAN_IMPEDANCE
     velocity = 2.5
-    new_control_mode.cartesian_path_execution_params.max_velocity.x = velocity
-    new_control_mode.cartesian_path_execution_params.max_velocity.y = velocity
-    new_control_mode.cartesian_path_execution_params.max_velocity.z = velocity
+    scale = 200 / 20
+    new_control_mode.cartesian_path_execution_params.max_velocity.x = velocity * scale
+    new_control_mode.cartesian_path_execution_params.max_velocity.y = velocity * scale
+    new_control_mode.cartesian_path_execution_params.max_velocity.z = velocity * scale
     new_control_mode.cartesian_path_execution_params.max_velocity.a = velocity * 0.25
     new_control_mode.cartesian_path_execution_params.max_velocity.b = velocity * 0.25
     new_control_mode.cartesian_path_execution_params.max_velocity.c = velocity * 0.25
@@ -160,7 +161,7 @@ def get_cartesian_impedance_params():
     new_control_mode.cartesian_impedance_params.cartesian_damping.b = 0.25
     new_control_mode.cartesian_impedance_params.cartesian_damping.c = 0.25
     new_control_mode.cartesian_impedance_params.nullspace_damping = 0.5
-    new_control_mode.cartesian_impedance_params.cartesian_stiffness.x = 5000.0
+    new_control_mode.cartesian_impedance_params.cartesian_stiffness.x = 1000.0
     new_control_mode.cartesian_impedance_params.cartesian_stiffness.y = 5000.0
     new_control_mode.cartesian_impedance_params.cartesian_stiffness.z = 5000.0
     new_control_mode.cartesian_impedance_params.cartesian_stiffness.a = 300.0
@@ -173,9 +174,9 @@ def get_cartesian_impedance_params():
     new_control_mode.cartesian_control_mode_limits.max_path_deviation.a = 10000000.0
     new_control_mode.cartesian_control_mode_limits.max_path_deviation.b = 10000000.0
     new_control_mode.cartesian_control_mode_limits.max_path_deviation.c = 10000000.0
-    new_control_mode.cartesian_control_mode_limits.max_cartesian_velocity.x = velocity
-    new_control_mode.cartesian_control_mode_limits.max_cartesian_velocity.y = velocity
-    new_control_mode.cartesian_control_mode_limits.max_cartesian_velocity.z = velocity
+    new_control_mode.cartesian_control_mode_limits.max_cartesian_velocity.x = velocity * scale * 2
+    new_control_mode.cartesian_control_mode_limits.max_cartesian_velocity.y = velocity * scale * 2
+    new_control_mode.cartesian_control_mode_limits.max_cartesian_velocity.z = velocity * scale * 2
     new_control_mode.cartesian_control_mode_limits.max_cartesian_velocity.a = velocity * 2.0 * 0.25
     new_control_mode.cartesian_control_mode_limits.max_cartesian_velocity.b = velocity * 2.0 * 0.25
     new_control_mode.cartesian_control_mode_limits.max_cartesian_velocity.c = velocity * 2.0 * 0.25
