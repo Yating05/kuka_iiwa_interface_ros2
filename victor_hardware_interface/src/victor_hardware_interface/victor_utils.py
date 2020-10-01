@@ -161,7 +161,7 @@ def get_cartesian_impedance_params():
     new_control_mode.cartesian_impedance_params.cartesian_damping.b = 0.25
     new_control_mode.cartesian_impedance_params.cartesian_damping.c = 0.25
     new_control_mode.cartesian_impedance_params.nullspace_damping = 0.5
-    new_control_mode.cartesian_impedance_params.cartesian_stiffness.x = 1000.0
+    new_control_mode.cartesian_impedance_params.cartesian_stiffness.x = 5000.0
     new_control_mode.cartesian_impedance_params.cartesian_stiffness.y = 5000.0
     new_control_mode.cartesian_impedance_params.cartesian_stiffness.z = 5000.0
     new_control_mode.cartesian_impedance_params.cartesian_stiffness.a = 300.0
@@ -180,8 +180,8 @@ def get_cartesian_impedance_params():
     new_control_mode.cartesian_control_mode_limits.max_cartesian_velocity.a = velocity * 2.0 * 0.25
     new_control_mode.cartesian_control_mode_limits.max_cartesian_velocity.b = velocity * 2.0 * 0.25
     new_control_mode.cartesian_control_mode_limits.max_cartesian_velocity.c = velocity * 2.0 * 0.25
-    new_control_mode.cartesian_control_mode_limits.max_control_force.x = 20.0
-    new_control_mode.cartesian_control_mode_limits.max_control_force.y = 20.0
+    new_control_mode.cartesian_control_mode_limits.max_control_force.x = 10.0
+    new_control_mode.cartesian_control_mode_limits.max_control_force.y = 10.0
     new_control_mode.cartesian_control_mode_limits.max_control_force.z = 20.0
     new_control_mode.cartesian_control_mode_limits.max_control_force.a = 20.0
     new_control_mode.cartesian_control_mode_limits.max_control_force.b = 20.0
