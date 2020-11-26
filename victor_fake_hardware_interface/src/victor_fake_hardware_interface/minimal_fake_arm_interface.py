@@ -276,3 +276,5 @@ class MinimalFakeArmInterface:
         msg.active_control_mode.mode = ControlMode.JOINT_POSITION
 
         return msg
+
+
