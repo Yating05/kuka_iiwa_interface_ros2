@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import IPython
 import math
 import rospy
 from threading import Thread
