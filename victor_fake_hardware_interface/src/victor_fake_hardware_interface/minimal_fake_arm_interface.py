@@ -239,7 +239,11 @@ class MinimalFakeArmInterface:
         while not rospy.is_shutdown():
             with self.input_mtx:
                 self.motion_status_msg.header.stamp = rospy.Time.now()
-                self.motion_status_pub.publish(self.motion_status_msg)
+                try:
+                    self.motion_status_pub.publish(self.motion_status_msg)
+                except Exception as e:
+                    print(self.motion_status_msg)
+                    raise e
             r.sleep()
 
     def start_feedback_threads(self):
